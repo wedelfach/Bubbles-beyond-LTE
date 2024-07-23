@@ -13,13 +13,22 @@ from scipy.optimize import root_scalar, brentq
 import matplotlib.pyplot as plt
 
 
-def solve(g,arg,a,b,N=50):
-    f=lambda u: g(u,*arg)
+
+
+def solve(g,arg,a,b,N=100):
+    def f(u):
+        try:
+            return g(u,*arg)
+        except ValueError:
+            return None
+
     if np.abs(np.log(a/b))<1 or a<=0 or b<=0:
         x=np.linspace(a,b,N)
     else:
         x=np.logspace(np.log(a),np.log(b),N,base=np.e)
     l1=np.array(list(map(f,x)))
+    x=x[l1 != None]
+    l1=l1[l1 != None]
     mem=l1[0]
     sol=None
     for _it in range(len(l1)):
@@ -34,10 +43,6 @@ def solve(g,arg,a,b,N=50):
                 break
         mem=l1[_it]
     if sol==None:
-        #print(x)
-        #print(l1)
-        #plt.plot(x,l1)
-        #plt.show()
         raise ValueError
     return sol
 
@@ -120,7 +125,7 @@ def find_vw (alN ,cb2 ,cs2 , psiN, rho=0, vw_max=None):
      if alN < (1- psiN )/3 or alN <= (mu -nu) /(3* mu):
          print ("alN too small")
          return 0
-     if alN > max_al (cb2 ,cs2 ,psiN ,100) or shooting (vJ ,alN ,cb2 ,cs2 , psiN, rho ) < 0:
+     if alN > max_al (cb2 ,cs2 ,psiN ,100, rho) or shooting (vJ ,alN ,cb2 ,cs2 , psiN, rho ) < 0:
          print ("alN too large")
          return 1
      if vw_max==None:
@@ -131,21 +136,23 @@ def find_vw (alN ,cb2 ,cs2 , psiN, rho=0, vw_max=None):
      print('err_vw=',shooting( sol, alN ,cb2 ,cs2 , psiN, rho ))
      return sol
 
-def max_al (cb2 ,cs2 ,psiN , upper_limit =1) :
+def max_al (cb2 ,cs2 ,psiN , upper_limit =1, rho=0) :
      nu ,mu = 1+1/ cb2 ,1+1/ cs2
      vm = np. sqrt (cb2 )
-     def func (alN ):
+     def func (alN, rho):
          vw = find_vJ (alN , cb2 )
          vp = cs2 /vw
          ga2p , ga2m = 1/(1 - vp **2) ,1/(1 - vm **2)
          wp = (vp+vw -vw*mu)/( vp+vw -vp*mu)
          psi = psiN *wp **( nu/mu -1)
          al = (mu -nu) /(3* mu)+( alN -(mu -nu) /(3* mu))/wp
-         return vp*vm*al /(1 -(nu -1) *vp*vm) -(1 -3*al -( ga2p / ga2m )**( nu /2)*psi) /(3*nu)
-     if func ( upper_limit ) < 0:
+         r=ga2p/ga2m*(1-rho*abs(ga2p)**.5*vp/(w_from_alpha (al ,alN ,nu ,mu)+1e-100))**2
+         return vp*vm*al /(1 -(nu -1) *vp*vm) -(1 -3*al -( r )**( nu /2)*psi) /(3*nu)
+     if func ( upper_limit, rho ) < 0:
          return upper_limit
-     sol = root_scalar (func , bracket =((1 - psiN )/3, upper_limit ),rtol =1e-10 , xtol =1e-10)
-     return sol.root
+     sol = solve( func ,[rho],a=(1 - psiN )/3, b=upper_limit)
+     #sol = root_scalar (func , bracket =((1 - psiN )/3, upper_limit ),rtol =1e-10 , xtol =1e-10)
+     return sol
 
 def detonation (alN ,cb2 , psiN, rho=0 ):
      nu = 1+1/ cb2
