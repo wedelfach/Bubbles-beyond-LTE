@@ -5,5 +5,4 @@ The main functions "find_vw" and "detonation" from the original code were augmen
 We also replaced the default scipy solver used in [1] with a custom one: slower but more reliable. For details check [2].
 
 [1] "Model-independent bubble wall velocities in local thermal equilibrium." Journal of Cosmology and Astroparticle Physics 2023.07 (2023): 002.
-
 [2] "Steady-state bubbles beyond the local-thermal equilibrium.", ArXive: (...)
