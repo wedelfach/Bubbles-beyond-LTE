@@ -20,7 +20,7 @@ def solve(g,a,b,arg={},N=100,acc=0.001):
     Parameters
     ----------
     g : callable
-        The scalar function `g(x)` which encapsulates LHS of the equation.
+        The scalar function `g(x)` encapsulates LHS of the equation.
     a : float
         The lower limit of the search region.
     b : float
@@ -30,21 +30,22 @@ def solve(g,a,b,arg={},N=100,acc=0.001):
     N : integer, optional
         Numer of samples on the [a, b] set that controls the resolution.
     acc : float, optional
-        Maximum allowed value taken by g at the solution found by an algorith. 
-        If not reached the accuracy error is rised.
+        The maximum allowed value is taken by g(x) at the 
+        solution found by the solver. If not reached the accuracy error 
+        is raised.
 
     Returns
     -------
       sol: float
-        Solution found by the routine
+        The solution found by the routine
 
     Notes
     -----
-      The algorithm is a baisc implementation of the sign-change
-      routine. Onece the the two points between whom the sign of g changes
-      are identified scipy brentq is used to accuratelly compute the solution.
-      N=100 is usually sufficient for bag model were c_s^2=c_b^2=1/3. 
-      For different sound velocities one may consider choosing higher N.
+      The algorithm is a basic implementation of the sign-change
+      routine. Once the two points between whom the sign of g(x) changes
+      are identified scipy brentq is used to compute the solution accurately.
+      N=100 is usually sufficient for Bag Model were c_s^2=c_b^2=1/3. 
+      For different sound velocities, one may consider choosing a higher N.
 
     """
     def f(u):
@@ -85,17 +86,17 @@ def solve(g,a,b,arg={},N=100,acc=0.001):
 
 """
 Functions computing transition parameters. For documentation 
-check appendix C of arXiv:2303.10171. Two modifications were made:
-    1) The oryginal solving algorithm was replaced by the custom one.
-    2) Third matching condition was implemented in the functions "eqWall" 
+check Appendix C of arXiv:2303.10171. Two modifications were made:
+    1) The original solving algorithm was replaced by the custom one.
+    2) The third matching condition was implemented in the function "eqWall" 
     and "detonation"
     3) Function "detonation" always returns the physical solution. In case 
-    two steady states are found, detonation choses faster stable solution
-    and ignores the unstble slower one. In LTE limit no stable detonation
+    two steady states are found, detonation chooses a faster stable solution
+    and ignores the unstable slower one. In the LTE limit, no stable detonation
     exists (the walls run away) and thus detonation always returns None.
-    4) In nu-mu model with non-zero friction we often find two solutions 
-    for alpha_+. We verfied that it is the bigger one that leads to the 
-    solutions consistant with hydrodynamic simulations.
+    4) In the nu-mu model with non-zero friction we often find two solutions 
+    for alpha_+. We verified that it is the bigger one that leads to the 
+    solutions consistent with hydrodynamic simulations.
     5) In "eqWall" we always choose the smaller solution for v_p,
     which corresponds to the (-1) branch.
 """
