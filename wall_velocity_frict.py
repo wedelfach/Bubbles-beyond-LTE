@@ -12,7 +12,7 @@ from scipy.integrate import solve_ivp , simps
 from scipy.optimize import brentq
 
 
-def solve(g,a,b,arg={},N=100,acc=0.001):
+def solve(g,arg={},a=0,b=1,N=100,acc=0.001):
 
     """
     Finds the smallest solution of an equation g(x)=0 such that a < x_sol < b.
@@ -21,12 +21,12 @@ def solve(g,a,b,arg={},N=100,acc=0.001):
     ----------
     g : callable
         The scalar function `g(x)` encapsulates LHS of the equation.
-    a : float
-        The lower limit of the search region.
-    b : float
-        The upper limit of the search region.
     arg : iterable, optional
         The parameters passed to function g
+    a : float, optional
+        The lower limit of the search region.
+    b : float, optional
+        The upper limit of the search region.
     N : integer, optional
         Numer of samples on the [a, b] set that controls the resolution.
     acc : float, optional
