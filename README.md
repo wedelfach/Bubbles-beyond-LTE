@@ -6,4 +6,4 @@ We also replaced the default scipy solver used in [1] with a custom one: slower 
 
 [1] "Model-independent bubble wall velocities in local thermal equilibrium." Journal of Cosmology and Astroparticle Physics 2023.07 (2023): 002.
 
-[2] "Steady-state bubbles beyond the local-thermal equilibrium.", ArXive: (...)
+[2] "Steady-state bubbles beyond the local-thermal equilibrium.", ArXive: 2411.16580
