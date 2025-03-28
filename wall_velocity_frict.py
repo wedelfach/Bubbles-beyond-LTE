@@ -1,14 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul  3 13:34:27 2024
-
-@author: User
-"""
-
-
-
 import numpy as np
-from scipy.integrate import solve_ivp , simps
+from scipy.integrate import solve_ivp , simpson
 from scipy.optimize import brentq
 
 
@@ -86,16 +77,17 @@ def solve(g,arg={},a=0,b=1,N=100,acc=0.001):
 
 """
 Functions computing transition parameters. For documentation 
-check Appendix C of arXiv:2303.10171. Two modifications were made:
+check Appendix C of arXiv:2303.10171. The following modifications 
+were made to the oryginal code:
     1) The original solving algorithm was replaced by the custom one.
     2) The third matching condition was implemented in the function "eqWall" 
     and "detonation"
     3) Function "detonation" always returns the physical solution. In case 
     two steady states are found, detonation chooses a faster stable solution
-    and ignores the unstable slower one. In the LTE limit, no stable detonation
-    exists (the walls run away) and thus detonation always returns None.
+    and ignores the unstable slower one. When no stable detonation
+    exists (the walls run away) detonation returns None.
     4) In the nu-mu model with non-zero friction we often find two solutions 
-    for alpha_+. We verified that it is the bigger one that leads to the 
+    for alpha_+. We verified that it is usually the bigger one that leads to the 
     solutions consistent with hydrodynamic simulations.
     5) In "eqWall" we always choose the smaller solution for v_p,
     which corresponds to the (-1) branch.
@@ -207,8 +199,11 @@ def detonation (alN ,cb2 , psiN, rho ):
          ga2w , ga2m = 1/(1 - vw **2) ,1/(1 - vm **2)
          r=(ga2w / ga2m)*1/(1+rho*vw*ga2w**.5)**2
          return vw*vm*alN /(1 -(nu -1) *vw*vm) -(1 -3* alN -( r )**( nu /2)* psiN )/(3* nu)
-
-     sol_det_1 = solve( matching_eq, arg=(),a= vJ +1e-10,b=1 -1e-10)
+     try:
+     	sol_det_1 = solve( matching_eq, arg=(),a= vJ +1e-10,b=1 -1e-10)
+     except ValueError:
+         print("No stable detonations found!")
+         return None
      if matching_eq (sol_det_1-1e-5)>0 and matching_eq (sol_det_1+1e-5)<0:
          return sol_det_1
      try:
@@ -230,13 +225,13 @@ def find_kappa (alN ,cb2 ,cs2 ,psiN ,vw= None ):
          wp = w_from_alpha (al ,alN ,nu ,mu)
          sol = integrate_plasma ((vw -vp)/(1 - vw*vp),vw ,wp ,cs2)
          v,xi ,w = sol .t,sol .y[0] , sol .y[1]
-         kappa += 4* simps (( xi*v) **2* w/(1 -v **2) ,xi)/( vw **3* alN)
+         kappa += 4* simpson (( xi*v) **2* w/(1 -v **2) ,xi)/( vw **3* alN)
      if vw **2 > cb2 :
          w0 = psiN *wp **( nu/mu)*((1 - vm **2) /(1 - vp **2) )**( nu /2) if vw < 1 else 1+6* alN /(nu -2)
          v0 = (vw -vm)/(1 - vw*vm) if vw < 1 else 3* alN /(nu -2+3* alN )
          sol = integrate_plasma (v0 ,vw ,w0 ,cb2 , False )
          v,xi ,w = np. flip (sol .t),np. flip (sol.y [0]) ,np. flip (sol.y [1])
          mask = np. append (xi [1:] > xi [: -1] , True )
-         kappa += 4* simps ((( xi*v) **2* w/(1 -v **2) )[ mask ],xi[ mask ]) /( vw **3* alN )
+         kappa += 4* simpson ((( xi*v) **2* w/(1 -v **2) )[ mask ],xi[ mask ]) /( vw **3* alN )
      return kappa
 
